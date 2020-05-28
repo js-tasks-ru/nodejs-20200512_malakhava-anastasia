@@ -24,11 +24,9 @@ server.on('request', (req, res) => {
       if (code === 'LIMIT_EXCEEDED') {
         statusCode = 413;
         unlinkFile();
-      }
-      if (code === 'ENOENT') {
+      } else if (code === 'ENOENT') {
         statusCode = 400;
-      }
-      if (code === 'EEXIST') {
+      } else if (code === 'EEXIST') {
         statusCode = 409;
       }
       handleSendResponse(statusCode);
@@ -42,6 +40,10 @@ server.on('request', (req, res) => {
 
     if (pathname.includes('/')) {
       handleSendResponse(400);
+    }
+
+    if (Number(req.headers['content-length']) === 0) {
+      handleSendResponse(409);
     }
 
     const transformableStream = new LimitSizeStream({
