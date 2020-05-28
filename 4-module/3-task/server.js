@@ -36,7 +36,6 @@ server.on('request', (req, res) => {
           handleError(err);
         })
         .on('end', () => {
-          console.log('потому что он энд');
           fs.unlink(filepath, (err) => {
             if (err) handleError(err);
             else handleSendResponse(200);
