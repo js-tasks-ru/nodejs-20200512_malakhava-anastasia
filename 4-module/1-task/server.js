@@ -11,9 +11,7 @@ server.on('request', (req, res) => {
   const filepath = path.join(__dirname, 'files', pathname);
   const readableStream = fs.createReadStream(filepath);
 
-  readableStream.on('open', () => {
-    readableStream.pipe(res);
-  });
+  readableStream.pipe(res);
 
   readableStream.on('error', (err) => {
     if (err.code === 'ENOENT') {
@@ -28,6 +26,7 @@ server.on('request', (req, res) => {
 
   switch (req.method) {
     case 'GET':
+      res.statusCode = 200;
       break;
 
     default:
