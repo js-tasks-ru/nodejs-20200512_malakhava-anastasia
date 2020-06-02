@@ -15,7 +15,6 @@ server.on('request', (req, res) => {
   if (req.method === 'DELETE') {
     const pathname = url.parse(req.url).pathname.slice(1);
     const filepath = path.join(__dirname, 'files', pathname);
-    const readStream = fs.createReadStream(filepath);
 
     const handleError = (error) => {
       let statusCode = 500;
@@ -26,21 +25,14 @@ server.on('request', (req, res) => {
       handleSendResponse(statusCode);
     };
 
-    if (pathname.includes('/')) {
-      handleSendResponse(400);
+    if (pathname.includes('/') || pathname.includes('..')) {
+      return handleSendResponse(400);
     }
 
-    readStream
-        .resume()
-        .on('error', (err) => {
-          handleError(err);
-        })
-        .on('end', () => {
-          fs.unlink(filepath, (err) => {
-            if (err) handleError(err);
-            else handleSendResponse(200);
-          });
-        });
+    fs.unlink(filepath, (err) => {
+      if (err) handleError(err);
+      else handleSendResponse(200);
+    });
   } else {
     handleSendResponse(501);
   }
