@@ -45,6 +45,7 @@ module.exports.productById = async function productById(ctx, next) {
       ctx.body = {};
       return;
     }
+
     ctx.body = {product: mapProducts(productFromDb)};
   } catch (err) {
     ctx.status = 400;
