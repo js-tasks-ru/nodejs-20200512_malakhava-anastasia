@@ -6,7 +6,7 @@ const fs = require('fs');
 
 const LimitSizeStream = require('./LimitSizeStream');
 const server = new http.Server();
-const limit = 1024 * 1024;
+const limit = 1e6;
 
 server.on('request', (req, res) => {
   const handleSendResponse = (code) => {
@@ -40,27 +40,27 @@ server.on('request', (req, res) => {
 
     if (pathname.includes('/')) {
       handleSendResponse(400);
+      return;
     }
 
     if (Number(req.headers['content-length']) === 0) {
       handleSendResponse(409);
+      return;
     }
 
     const transformableStream = new LimitSizeStream({
       limit,
     });
     const writableStream = fs.createWriteStream(filepath, {flags: 'wx'});
-
     const pipedStream = req.pipe(transformableStream).pipe(writableStream);
     pipedStream.on('finish', () => {
       handleSendResponse(201);
     });
-
     req.on('aborted', unlinkFile);
     req.on('error', handleError);
     writableStream.on('error', handleError);
     transformableStream.on('error', handleError);
-    pipedStream.on('error', handleError);
+    // pipedStream.on('error', (err) => handleError(err));
   } else {
     handleSendResponse(501);
   }
